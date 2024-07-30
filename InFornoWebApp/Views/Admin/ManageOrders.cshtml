@@ -1,0 +1,36 @@
+﻿@model IEnumerable<InFornoWebApp.Models.Order>
+
+@{
+    ViewData["Title"] = "Gestione Ordini";
+}
+
+<h2>Gestione Ordini</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID Ordine</th>
+            <th>Data</th>
+            <th>Utente</th>
+            <th>Stato</th>
+            <th>Azioni</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>@order.Id</td>
+                <td>@order.OrderDate</td>
+                <td>@order.UserId</td>
+                <td>@(order.IsCompleted ? "Completato" : "In Attesa")</td>
+                <td>
+                    @if (!order.IsCompleted)
+                    {
+                        <a asp-action="MarkOrderAsCompleted" asp-route-id="@order.Id">Segna come Completato</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

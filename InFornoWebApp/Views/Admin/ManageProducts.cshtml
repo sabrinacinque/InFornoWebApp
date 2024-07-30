@@ -1,0 +1,64 @@
+﻿@model IEnumerable<InFornoWebApp.Models.Product>
+
+@{
+    ViewData["Title"] = "Gestione Prodotti";
+}
+
+<h2>Gestione Prodotti</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Prezzo</th>
+            <th>Tempo di Consegna</th>
+            <th>Ingredienti</th>
+            <th>Azioni</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model)
+        {
+            <tr>
+                <td>@product.Name</td>
+                <td>@product.Price</td>
+                <td>@product.DeliveryTime</td>
+                <td>@string.Join(", ", product.ProductIngredients.Select(pi => pi.Ingredient.Name))</td>
+                <td>
+                    <a asp-action="EditProduct" asp-route-id="@product.Id" class="btn btn-warning">Modifica</a>
+                    <button class="btn btn-danger" onclick="confirmDelete('@product.Id')">Elimina</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="CreateProduct" class="btn btn-primary">Aggiungi Nuovo Prodotto</a>
+
+@section Scripts {
+    <script>
+        function confirmDelete(productId) {
+            if (confirm("Sei sicuro di voler eliminare questo prodotto?")) {
+                deleteProduct(productId);
+            }
+        }
+
+        function deleteProduct(productId) {
+            $.ajax({
+                url: '@Url.Action("DeleteProduct", "Admin")',
+                type: 'POST',
+                data: { id: productId },
+                success: function (result) {
+                    if (result.success) {
+                        location.reload();
+                    } else {
+                        alert("Errore durante l'eliminazione del prodotto.");
+                    }
+                },
+                error: function () {
+                    alert("Errore durante l'eliminazione del prodotto.");
+                }
+            });
+        }
+    </script>
+}

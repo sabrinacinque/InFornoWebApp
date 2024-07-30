@@ -1,0 +1,38 @@
+﻿@model InFornoWebApp.Models.Product
+
+@{
+    ViewData["Title"] = "Modifica Prodotto";
+}
+
+<h2>Modifica Prodotto</h2>
+
+<form asp-action="EditProduct" enctype="multipart/form-data" method="post">
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Price"></label>
+        <input asp-for="Price" class="form-control" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="DeliveryTime"></label>
+        <input asp-for="DeliveryTime" class="form-control" />
+        <span asp-validation-for="DeliveryTime" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="PhotoUrl">Foto</label>
+        <input type="file" class="form-control" asp-for="PhotoUrl" />
+    </div>
+    <div class="form-group">
+        <label>Ingredienti</label>
+        <select asp-for="ProductIngredients" class="form-control" multiple asp-items="@(new SelectList(ViewBag.Ingredients, "Id", "Name"))"></select>
+    </div>
+    <button type="submit" class="btn btn-primary">Salva</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

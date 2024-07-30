@@ -1,0 +1,33 @@
+﻿@model IEnumerable<InFornoWebApp.Models.Product>
+
+@{
+    ViewData["Title"] = "Prodotti Disponibili";
+}
+
+<h2>Prodotti Disponibili</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Prezzo</th>
+            <th>Tempo di Consegna</th>
+            <th>Ingredienti</th>
+            <th>Azioni</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model)
+        {
+            <tr>
+                <td>@product.Name</td>
+                <td>@product.Price</td>
+                <td>@product.DeliveryTime</td>
+                <td>@string.Join(", ", product.ProductIngredients.Select(pi => pi.Ingredient.Name))</td>
+                <td>
+                    <a asp-action="AddToOrder" asp-route-id="@product.Id" class="btn btn-primary">Aggiungi all'Ordine</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

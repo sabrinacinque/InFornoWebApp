@@ -1,0 +1,29 @@
+﻿@model IEnumerable<InFornoWebApp.Models.Order>
+
+@{
+    ViewData["Title"] = "Storico Ordini";
+}
+
+<h2>Storico Ordini</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID Ordine</th>
+            <th>Data</th>
+            <th>Totale</th>
+            <th>Stato</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>@order.Id</td>
+                <td>@order.OrderDate</td>
+                <td>@order.OrderItems.Sum(i => i.TotalPrice)</td>
+                <td>@(order.IsCompleted ? "Completato" : "In Attesa")</td>
+            </tr>
+        }
+    </tbody>
+</table>
