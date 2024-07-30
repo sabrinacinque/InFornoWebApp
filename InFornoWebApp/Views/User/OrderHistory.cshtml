@@ -21,7 +21,7 @@
             <tr>
                 <td>@order.Id</td>
                 <td>@order.OrderDate</td>
-                <td>@order.OrderItems.Sum(i => i.TotalPrice)</td>
+              
                 <td>@(order.IsCompleted ? "Completato" : "In Attesa")</td>
             </tr>
         }

@@ -38,7 +38,7 @@ namespace InFornoWebApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateProduct(Product product, IFormFile photo, int[] selectedIngredients)
+        public IActionResult CreateProduct(Product ? product, IFormFile ? photo, int[] ? selectedIngredients)
         {
             if (ModelState.IsValid)
             {
@@ -47,13 +47,13 @@ namespace InFornoWebApp.Controllers
                     var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", photo.FileName);
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
-                        await photo.CopyToAsync(stream);
+                        photo.CopyTo(stream);
                     }
                     product.PhotoUrl = "/images/" + photo.FileName;
                 }
 
                 _context.Products.Add(product);
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
 
                 if (selectedIngredients != null)
                 {
@@ -65,7 +65,7 @@ namespace InFornoWebApp.Controllers
                             IngredientId = ingredientId
                         });
                     }
-                    await _context.SaveChangesAsync();
+                    _context.SaveChanges();
                 }
 
                 return RedirectToAction(nameof(ManageProducts));
@@ -91,13 +91,13 @@ namespace InFornoWebApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditProduct(Product product, IFormFile photo, int[] selectedIngredients)
+        public IActionResult EditProduct(int  ? id, Product ? product, IFormFile ?photo, int[] ? selectedIngredients)
         {
             if (ModelState.IsValid)
             {
                 var existingProduct = _context.Products
                     .Include(p => p.ProductIngredients)
-                    .SingleOrDefault(p => p.Id == product.Id);
+                    .SingleOrDefault(p => p.Id == id);
 
                 if (existingProduct == null)
                 {
@@ -109,19 +109,14 @@ namespace InFornoWebApp.Controllers
                     var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", photo.FileName);
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
-                        await photo.CopyToAsync(stream);
+                        photo.CopyTo(stream);
                     }
-                    product.PhotoUrl = "/images/" + photo.FileName;
-                }
-                else
-                {
-                    product.PhotoUrl = existingProduct.PhotoUrl;
+                    existingProduct.PhotoUrl = "/images/" + photo.FileName;
                 }
 
                 existingProduct.Name = product.Name;
                 existingProduct.Price = product.Price;
                 existingProduct.DeliveryTime = product.DeliveryTime;
-                existingProduct.PhotoUrl = product.PhotoUrl;
 
                 _context.ProductIngredients.RemoveRange(existingProduct.ProductIngredients);
 
@@ -137,7 +132,7 @@ namespace InFornoWebApp.Controllers
                     }
                 }
 
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
                 return RedirectToAction(nameof(ManageProducts));
             }
             ViewBag.Ingredients = _context.Ingredients.ToList();
@@ -145,20 +140,21 @@ namespace InFornoWebApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> DeleteProduct(int id)
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteProduct(int id)
         {
-            var existingProduct = _context.Products
+            var product = _context.Products
                 .Include(p => p.ProductIngredients)
                 .SingleOrDefault(p => p.Id == id);
 
-            if (existingProduct == null)
+            if (product == null)
             {
                 return NotFound();
             }
 
-            _context.Products.Remove(existingProduct);
-            await _context.SaveChangesAsync();
-            return Json(new { success = true });
+            _context.Products.Remove(product);
+            _context.SaveChanges();
+            return RedirectToAction(nameof(ManageProducts));
         }
     }
 }

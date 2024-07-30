@@ -34,7 +34,12 @@ namespace InFornoWebApp.Data
                 .WithMany(i => i.ProductIngredients)
                 .HasForeignKey(pi => pi.IngredientId);
 
-            // Aggiungo qualche inngrediente in modo che posso testare le crud dei prodotti
+            // Configurazione del tipo di colonna per il prezzo
+            modelBuilder.Entity<Product>()
+                .Property(p => p.Price)
+                .HasColumnType("decimal(18,2)");
+
+            // Aggiunta di ingredienti predefiniti
             modelBuilder.Entity<Ingredient>().HasData(
                 new Ingredient { Id = 1, Name = "Mozzarella" },
                 new Ingredient { Id = 2, Name = "Pomodoro" },
@@ -51,6 +56,37 @@ namespace InFornoWebApp.Data
                 new Ingredient { Id = 13, Name = "Carciofi" },
                 new Ingredient { Id = 14, Name = "Acciughe" },
                 new Ingredient { Id = 15, Name = "Salsiccia" }
+            );
+
+            // Aggiunta di prodotti predefiniti
+            modelBuilder.Entity<Product>().HasData(
+                new Product
+                {
+                    Id = 1,
+                    Name = "Pizza Margherita",
+                    PhotoUrl = "/images/margherita.jpg",
+                    Price = 5.00M,
+                    DeliveryTime = 20
+                },
+                new Product
+                {
+                    Id = 2,
+                    Name = "Pizza Prosciutto e Funghi",
+                    PhotoUrl = "/images/prosciutto_funghi.jpg",
+                    Price = 7.50M,
+                    DeliveryTime = 25
+                }
+            );
+
+            // Associazione degli ingredienti ai prodotti
+            modelBuilder.Entity<ProductIngredient>().HasData(
+                new ProductIngredient { ProductId = 1, IngredientId = 1 }, // Mozzarella
+                new ProductIngredient { ProductId = 1, IngredientId = 2 }, // Pomodoro
+                new ProductIngredient { ProductId = 1, IngredientId = 3 }, // Basilico
+                new ProductIngredient { ProductId = 2, IngredientId = 1 }, // Mozzarella
+                new ProductIngredient { ProductId = 2, IngredientId = 2 }, // Pomodoro
+                new ProductIngredient { ProductId = 2, IngredientId = 9 }, // Prosciutto
+                new ProductIngredient { ProductId = 2, IngredientId = 10 }  // Funghi
             );
         }
     }

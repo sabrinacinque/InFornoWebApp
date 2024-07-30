@@ -4,6 +4,7 @@ using InFornoWebApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InFornoWebApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240730124203_SeedProducts")]
+    partial class SeedProducts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -158,12 +161,10 @@ namespace InFornoWebApp.Migrations
                     b.Property<int?>("OrderId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ProductId")
-                        .IsRequired()
+                    b.Property<int>("ProductId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Quantity")
-                        .IsRequired()
+                    b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -183,8 +184,7 @@ namespace InFornoWebApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("DeliveryTime")
-                        .IsRequired()
+                    b.Property<int>("DeliveryTime")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -192,10 +192,10 @@ namespace InFornoWebApp.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhotoUrl")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal?>("Price")
-                        .IsRequired()
+                    b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");

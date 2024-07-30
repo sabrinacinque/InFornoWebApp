@@ -11,7 +11,7 @@ namespace InFornoWebApp.Models
         [Required]
         public string UserId { get; set; }
 
-        public List<OrderItem> OrderItems { get; set; }
+        public List<OrderItem> ? OrderItems { get; set; }
 
         [Required]
         public string ShippingAddress { get; set; }

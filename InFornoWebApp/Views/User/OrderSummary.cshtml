@@ -22,7 +22,7 @@
                 <td>@item.Product.Name</td>
                 <td>@item.Quantity</td>
                 <td>@item.Product.Price</td>
-                <td>@item.TotalPrice</td>
+                <!--<td>@item.//TotalPrice</td>-->
             </tr>
         }
     </tbody>
@@ -31,7 +31,7 @@
 <p>Indirizzo di Spedizione: @Model.ShippingAddress</p>
 <p>Note: @Model.Notes</p>
 
-<p>Totale: @Model.OrderItems.Sum(i => i.TotalPrice)</p>
+
 
 <form asp-action="CompleteOrder" method="post">
     <button type="submit" class="btn btn-primary">Concludi Ordine</button>

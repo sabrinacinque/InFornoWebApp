@@ -6,6 +6,10 @@
 
 <h2>Gestione Prodotti</h2>
 
+<p>
+    <a asp-action="CreateProduct" class="btn btn-primary">Aggiungi Nuovo Prodotto</a>
+</p>
+
 <table class="table">
     <thead>
         <tr>
@@ -13,7 +17,7 @@
             <th>Prezzo</th>
             <th>Tempo di Consegna</th>
             <th>Ingredienti</th>
-            <th>Azioni</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -22,43 +26,22 @@
             <tr>
                 <td>@product.Name</td>
                 <td>@product.Price</td>
-                <td>@product.DeliveryTime</td>
-                <td>@string.Join(", ", product.ProductIngredients.Select(pi => pi.Ingredient.Name))</td>
+                <td>@product.DeliveryTime minuti</td>
+                <td>
+                    @foreach (var ingredient in product.ProductIngredients.Select(pi => pi.Ingredient.Name))
+                    {
+                        <span>@ingredient</span>
+
+                        <br />
+                    }
+                </td>
                 <td>
                     <a asp-action="EditProduct" asp-route-id="@product.Id" class="btn btn-warning">Modifica</a>
-                    <button class="btn btn-danger" onclick="confirmDelete('@product.Id')">Elimina</button>
+                    <form asp-action="DeleteProduct" asp-route-id="@product.Id" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger">Elimina</button>
+                    </form>
                 </td>
             </tr>
         }
     </tbody>
 </table>
-
-<a asp-action="CreateProduct" class="btn btn-primary">Aggiungi Nuovo Prodotto</a>
-
-@section Scripts {
-    <script>
-        function confirmDelete(productId) {
-            if (confirm("Sei sicuro di voler eliminare questo prodotto?")) {
-                deleteProduct(productId);
-            }
-        }
-
-        function deleteProduct(productId) {
-            $.ajax({
-                url: '@Url.Action("DeleteProduct", "Admin")',
-                type: 'POST',
-                data: { id: productId },
-                success: function (result) {
-                    if (result.success) {
-                        location.reload();
-                    } else {
-                        alert("Errore durante l'eliminazione del prodotto.");
-                    }
-                },
-                error: function () {
-                    alert("Errore durante l'eliminazione del prodotto.");
-                }
-            });
-        }
-    </script>
-}
