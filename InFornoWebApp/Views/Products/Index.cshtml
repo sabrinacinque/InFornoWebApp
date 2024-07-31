@@ -1,0 +1,65 @@
+﻿@model IEnumerable<InFornoWebApp.Models.Product>
+
+@{
+    ViewData["Title"] = "Prodotti Disponibili";
+}
+
+<h2>Prodotti Disponibili</h2>
+
+<div class="row mb-4">
+    <div class="col text-right">
+        <a href="@Url.Action("Cart", "Products")" class="btn btn-secondary">
+            <i class="fas fa-shopping-cart"></i> Carrello (<span id="cart-count">@ViewBag.CartCount</span>)
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    @foreach (var product in Model)
+    {
+        <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+                <img src="@product.PhotoUrl" class="card-img-top" alt="@product.Name">
+                <div class="card-body">
+                    <h5 class="card-title">@product.Name</h5>
+                    <p class="card-text">
+                        @foreach (var ingredient in product.ProductIngredients.Select(pi => pi.Ingredient.Name))
+                        {
+                            <span>@ingredient</span>
+                            <br />
+                        }
+                    </p>
+                    <p class="card-text"><strong>Prezzo: </strong>@product.Price €</p>
+                    <button class="btn btn-primary" onclick="addToCart(@product.Id)">Aggiungi al Carrello</button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function addToCart(productId) {
+            $.ajax({
+                url: '@Url.Action("AddToCart", "Products")',
+                type: 'POST',
+                data: {
+                    id: productId,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function (result) {
+                    if (result.success) {
+                        $("#cart-count").text(result.cartCount);
+                        alert("Prodotto aggiunto al carrello con successo.");
+                    } else {
+                        alert("Errore durante l'aggiunta del prodotto al carrello: " + result.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert("Errore durante l'aggiunta del prodotto al carrello.");
+                }
+            });
+        }
+    </script>
+}

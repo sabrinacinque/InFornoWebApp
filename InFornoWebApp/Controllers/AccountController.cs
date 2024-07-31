@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using InFornoWebApp.ViewModels;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace InFornoWebApp.Controllers
 {
@@ -23,6 +24,7 @@ namespace InFornoWebApp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (ModelState.IsValid)
@@ -30,7 +32,7 @@ namespace InFornoWebApp.Controllers
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, isPersistent: false, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Products"); // Reindirizza a Product/Index dopo il login
                 }
 
                 ModelState.AddModelError(string.Empty, "Tentativo di login non valido.");
@@ -46,6 +48,7 @@ namespace InFornoWebApp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (ModelState.IsValid)
@@ -54,8 +57,11 @@ namespace InFornoWebApp.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+                    // Assegna il ruolo "User" al nuovo utente
+                    await _userManager.AddToRoleAsync(user, "User");
+
                     await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Products");
                 }
 
                 foreach (var error in result.Errors)
@@ -68,10 +74,19 @@ namespace InFornoWebApp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public IActionResult Users()
+        {
+            var users = _userManager.Users.ToList();
+            return View(users);
         }
     }
 }

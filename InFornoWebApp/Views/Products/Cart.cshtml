@@ -1,0 +1,107 @@
+﻿@model IEnumerable<InFornoWebApp.Models.Product>
+
+@{
+    ViewData["Title"] = "Carrello";
+}
+
+<h2>Carrello</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Ingredienti</th>
+            <th>Prezzo</th>
+            <th>Quantità</th>
+            <th>Totale</th>
+            <th>Azioni</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model)
+        {
+            <tr>
+                <td>@product.Name</td>
+                <td>
+                    @foreach (var ingredient in product.ProductIngredients.Select(pi => pi.Ingredient.Name))
+                    {
+                        <span>@ingredient</span>
+
+                        <br />
+                    }
+                </td>
+                <td>@product.Price €</td>
+                <td>
+                    <input type="number" min="1" value="@ViewBag.Quantities[product.Id]" class="form-control quantity" data-product-id="@product.Id">
+                    <button class="btn btn-primary mt-2" onclick="updateQuantity(@product.Id)">Aggiorna Quantità</button>
+                </td>
+                <td class="product-total">@((decimal)ViewBag.Quantities[product.Id] * product.Price) €</td>
+                <td>
+                    <button class="btn btn-danger" onclick="confirmDelete(@product.Id)">X</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<p><strong>Totale Carrello: <span id="cart-total">@Model.Sum(p => (decimal)ViewBag.Quantities[p.Id] * p.Price)</span> €</strong></p>
+
+<a href="@Url.Action("Checkout", "Products")" class="btn btn-success">Concludi Ordine</a>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function updateQuantity(productId) {
+            var quantity = $('input[data-product-id="' + productId + '"]').val();
+
+            $.ajax({
+                url: '@Url.Action("UpdateQuantity", "Products")',
+                type: 'POST',
+                data: {
+                    id: productId,
+                    quantity: quantity,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function (result) {
+                    if (result.success) {
+                        var row = $('input[data-product-id="' + productId + '"]').closest("tr");
+                        row.find(".product-total").text(result.productTotal + " €");
+                        $("#cart-total").text(result.cartTotal + " €");
+                    } else {
+                        alert("Errore durante l'aggiornamento della quantità: " + result.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert("Errore durante l'aggiornamento della quantità.");
+                }
+            });
+        }
+
+        function confirmDelete(productId) {
+            if (confirm("Sei sicuro di voler eliminare questo prodotto dal carrello?")) {
+                deleteProduct(productId);
+            }
+        }
+
+        function deleteProduct(productId) {
+            $.ajax({
+                url: '@Url.Action("DeleteFromCart", "Products")',
+                type: 'POST',
+                data: {
+                    id: productId,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function (result) {
+                    if (result.success) {
+                        location.reload();
+                    } else {
+                        alert("Errore durante l'eliminazione del prodotto: " + result.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert("Errore durante l'eliminazione del prodotto.");
+                }
+            });
+        }
+    </script>
+}

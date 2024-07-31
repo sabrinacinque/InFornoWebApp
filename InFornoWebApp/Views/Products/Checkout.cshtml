@@ -1,0 +1,63 @@
+﻿@model IEnumerable<InFornoWebApp.Models.Product>
+
+@{
+    ViewData["Title"] = "Riepilogo Ordine";
+}
+
+<h2>Riepilogo Ordine</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Ingredienti</th>
+            <th>Prezzo</th>
+            <th>Quantità</th>
+            <th>Totale</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model)
+        {
+            <tr>
+                <td>@product.Name</td>
+                <td>
+                    @foreach (var ingredient in product.ProductIngredients.Select(pi => pi.Ingredient.Name))
+                    {
+                        <span>@ingredient</span>
+
+                        <br />
+                    }
+                </td>
+                <td>@product.Price €</td>
+                <td>@ViewBag.Quantities[product.Id]</td>
+                <td>@((decimal)ViewBag.Quantities[product.Id] * product.Price) €</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<p><strong>Totale Carrello: @Model.Sum(p => (decimal)ViewBag.Quantities[p.Id] * p.Price) €</strong></p>
+
+<form asp-action="PlaceOrder" method="post">
+    <div class="form-group">
+        <label for="shippingAddress">Indirizzo di Spedizione</label>
+        <input type="text" class="form-control" id="shippingAddress" name="shippingAddress" required />
+    </div>
+    <div class="form-group">
+        <label for="notes">Note Aggiuntive</label>
+        <textarea class="form-control" id="notes" name="notes"></textarea>
+    </div>
+    <div class="form-group">
+        <label>Orario di consegna</label>
+        <div>
+            <input type="radio" id="lunch" name="deliveryTime" value="lunch" required />
+            <label for="lunch">Pranzo</label>
+        </div>
+        <div>
+            <input type="radio" id="dinner" name="deliveryTime" value="dinner" required />
+            <label for="dinner">Cena</label>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Concludi Ordine</button>
+</form>

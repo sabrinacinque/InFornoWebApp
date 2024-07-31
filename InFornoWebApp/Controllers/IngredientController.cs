@@ -70,12 +70,13 @@ namespace InFornoWebApp.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             var ingredient = _context.Ingredients.SingleOrDefault(i => i.Id == id);
             if (ingredient == null)
             {
-                return NotFound();
+                return Json(new { success = false, message = "Ingrediente non trovato." });
             }
 
             _context.Ingredients.Remove(ingredient);

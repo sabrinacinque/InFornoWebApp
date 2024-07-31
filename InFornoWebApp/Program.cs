@@ -1,7 +1,7 @@
-using InFornoWebApp.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+using InFornoWebApp.Data;
+using InFornoWebApp.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,56 +11,23 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 // Configura l'identità
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
-var app = builder.Build();
-
-// Creazione dei ruoli e dell'utente amministratore di default
-using (var scope = app.Services.CreateScope())
+// Aggiungi la configurazione della sessione
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
 {
-    var services = scope.ServiceProvider;
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
-    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-    var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
-
-    string[] roleNames = { "Admin", "User" };
-    IdentityResult roleResult;
-
-    foreach (var roleName in roleNames)
-    {
-        var roleExist = await roleManager.RoleExistsAsync(roleName);
-        if (!roleExist)
-        {
-            roleResult = await roleManager.CreateAsync(new IdentityRole(roleName));
-        }
-    }
-
-    // Creazione dell'utente amministratore
-    var adminUser = new IdentityUser
-    {
-        UserName = "admin@inforno.com",
-        Email = "admin@inforno.com",
-        EmailConfirmed = true
-    };
-
-    string adminPassword = "Admin@123";
-
-    var user = await userManager.FindByEmailAsync("admin@inforno.com");
-
-    if (user == null)
-    {
-        var createAdmin = await userManager.CreateAsync(adminUser, adminPassword);
-        if (createAdmin.Succeeded)
-        {
-            await userManager.AddToRoleAsync(adminUser, "Admin");
-        }
-    }
-}
+var app = builder.Build();
 
 // Configura la pipeline di richiesta HTTP
 if (app.Environment.IsDevelopment())
@@ -81,6 +48,9 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Usa il middleware della sessione
+app.UseSession();
+
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
@@ -92,3 +62,32 @@ app.MapControllerRoute(
 app.MapRazorPages();
 
 app.Run();
+
+// Creazione dei ruoli e dell'utente admin
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+
+    // Creazione del ruolo Admin
+    if (!await roleManager.RoleExistsAsync("Admin"))
+    {
+        await roleManager.CreateAsync(new IdentityRole("Admin"));
+    }
+
+    // Creazione del ruolo User
+    if (!await roleManager.RoleExistsAsync("User"))
+    {
+        await roleManager.CreateAsync(new IdentityRole("User"));
+    }
+
+    // Creazione dell'utente admin
+    var adminEmail = "admin@inforno.com";
+    var adminUser = await userManager.FindByEmailAsync(adminEmail);
+    if (adminUser == null)
+    {
+        adminUser = new IdentityUser { UserName = adminEmail, Email = adminEmail };
+        await userManager.CreateAsync(adminUser, "AdminPassword123!");
+        await userManager.AddToRoleAsync(adminUser, "Admin");
+    }
+}

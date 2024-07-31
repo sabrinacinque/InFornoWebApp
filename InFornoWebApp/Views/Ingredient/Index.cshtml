@@ -20,7 +20,7 @@
                 <td>@ingredient.Name</td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@ingredient.Id" class="btn btn-warning">Modifica</a>
-                    <button class="btn btn-danger" onclick="confirmDelete('@ingredient.Id')">Elimina</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmDelete(@ingredient.Id)">Elimina</button>
                 </td>
             </tr>
         }
@@ -30,29 +30,33 @@
 <a asp-action="Create" class="btn btn-primary">Aggiungi Nuovo Ingrediente</a>
 
 @section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        function confirmDelete(ingredientId) {
+        function confirmDelete(id) {
             if (confirm("Sei sicuro di voler eliminare questo ingrediente?")) {
-                deleteIngredient(ingredientId);
-            }
-        }
-
-        function deleteIngredient(ingredientId) {
-            $.ajax({
-                url: '@Url.Action("Delete", "Ingredient")',
-                type: 'POST',
-                data: { id: ingredientId },
-                success: function (result) {
-                    if (result.success) {
-                        location.reload();
-                    } else {
+                $.ajax({
+                    url: '@Url.Action("Delete", "Ingredient")',
+                    type: 'POST',
+                    headers: {
+                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    data: {
+                        id: id
+                    },
+                    success: function (result) {
+                        if (result.success) {
+                            alert("Ingrediente eliminato con successo.");
+                            location.reload();
+                        } else {
+                            alert("Errore durante l'eliminazione dell'ingrediente: " + result.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
                         alert("Errore durante l'eliminazione dell'ingrediente.");
                     }
-                },
-                error: function () {
-                    alert("Errore durante l'eliminazione dell'ingrediente.");
-                }
-            });
+                });
+            }
         }
     </script>
+}
 }
