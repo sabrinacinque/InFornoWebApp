@@ -13,6 +13,7 @@
 <table class="table">
     <thead>
         <tr>
+            <th>Immagine</th>
             <th>Nome</th>
             <th>Prezzo</th>
             <th>Tempo di Consegna</th>
@@ -24,6 +25,7 @@
         @foreach (var product in Model)
         {
             <tr>
+               <td><img src="@product.PhotoUrl" alt="@product.Name" width="100" height="100"></td>
                 <td>@product.Name</td>
                 <td>@product.Price</td>
                 <td>@product.DeliveryTime minuti</td>

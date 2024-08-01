@@ -14,10 +14,12 @@ namespace InFornoWebApp.Controllers
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public AdminController(ApplicationDbContext context)
+        public AdminController(ApplicationDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         public IActionResult Index()
@@ -38,22 +40,22 @@ namespace InFornoWebApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult CreateProduct(Product? product, IFormFile? photo, int[]? selectedIngredients)
+        public async Task<IActionResult> CreateProduct(Product product, IFormFile photo, int[] selectedIngredients)
         {
             if (ModelState.IsValid)
             {
                 if (photo != null && photo.Length > 0)
                 {
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", photo.FileName);
+                    var filePath = Path.Combine(_env.WebRootPath, "img", photo.FileName);
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
-                        photo.CopyTo(stream);
+                        await photo.CopyToAsync(stream);
                     }
-                    product.PhotoUrl = "/images/" + photo.FileName;
+                    product.PhotoUrl = "/img/" + photo.FileName;
                 }
 
                 _context.Products.Add(product);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
 
                 if (selectedIngredients != null)
                 {
@@ -65,7 +67,7 @@ namespace InFornoWebApp.Controllers
                             IngredientId = ingredientId
                         });
                     }
-                    _context.SaveChanges();
+                    await _context.SaveChangesAsync();
                 }
 
                 return RedirectToAction(nameof(ManageProducts));
@@ -91,7 +93,7 @@ namespace InFornoWebApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult EditProduct(int? id, Product? product, IFormFile? photo, int[]? selectedIngredients)
+        public async Task<IActionResult> EditProduct(int id, Product product, IFormFile photo, int[] selectedIngredients)
         {
             if (ModelState.IsValid)
             {
@@ -106,12 +108,12 @@ namespace InFornoWebApp.Controllers
 
                 if (photo != null && photo.Length > 0)
                 {
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", photo.FileName);
+                    var filePath = Path.Combine(_env.WebRootPath, "img", photo.FileName);
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
-                        photo.CopyTo(stream);
+                        await photo.CopyToAsync(stream);
                     }
-                    existingProduct.PhotoUrl = "/images/" + photo.FileName;
+                    existingProduct.PhotoUrl = "/img/" + photo.FileName;
                 }
 
                 existingProduct.Name = product.Name;
@@ -126,13 +128,13 @@ namespace InFornoWebApp.Controllers
                     {
                         _context.ProductIngredients.Add(new ProductIngredient
                         {
-                            ProductId = product.Id,
+                            ProductId = existingProduct.Id,
                             IngredientId = ingredientId
                         });
                     }
                 }
 
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(ManageProducts));
             }
             ViewBag.Ingredients = _context.Ingredients.ToList();
@@ -141,7 +143,7 @@ namespace InFornoWebApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteProduct(int id)
+        public async Task<IActionResult> DeleteProduct(int id)
         {
             var product = _context.Products
                 .Include(p => p.ProductIngredients)
@@ -152,8 +154,17 @@ namespace InFornoWebApp.Controllers
                 return NotFound();
             }
 
+            if (!string.IsNullOrEmpty(product.PhotoUrl))
+            {
+                var filePath = Path.Combine(_env.WebRootPath, product.PhotoUrl.TrimStart('/'));
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+            }
+
             _context.Products.Remove(product);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(ManageProducts));
         }
 
