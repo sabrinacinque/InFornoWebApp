@@ -24,7 +24,7 @@ namespace InFornoWebApp.Controllers
                 }
                 else
                 {
-                    return RedirectToAction("Index", "User");
+                    return RedirectToAction("Index", "Products");
                 }
             }
 

@@ -9,9 +9,11 @@
 <table class="table">
     <thead>
         <tr>
-            <th>ID Ordine</th>
-            <th>Data</th>
+            <th>ID</th>
             <th>Utente</th>
+            <th>Indirizzo di Spedizione</th>
+            <th>Note</th>
+            <th>Data Ordine</th>
             <th>Stato</th>
             <th>Azioni</th>
         </tr>
@@ -21,13 +23,27 @@
         {
             <tr>
                 <td>@order.Id</td>
-                <td>@order.OrderDate</td>
                 <td>@order.UserId</td>
-                <td>@(order.IsCompleted ? "Completato" : "In Attesa")</td>
+                <td>@order.ShippingAddress</td>
+                <td>@order.Notes</td>
+                <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>
+                    @if (order.IsCompleted)
+                    {
+                        <span class="badge badge-success">Completato</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-warning">In sospeso</span>
+                    }
+                </td>
                 <td>
                     @if (!order.IsCompleted)
                     {
-                        <a asp-action="MarkOrderAsCompleted" asp-route-id="@order.Id">Segna come Completato</a>
+                        <form asp-action="UpdateOrderStatus" method="post" style="display:inline;">
+                            <input type="hidden" name="id" value="@order.Id" />
+                            <button type="submit" class="btn btn-success">Segna come completato</button>
+                        </form>
                     }
                 </td>
             </tr>

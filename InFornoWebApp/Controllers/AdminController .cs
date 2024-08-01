@@ -38,7 +38,7 @@ namespace InFornoWebApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult CreateProduct(Product ? product, IFormFile ? photo, int[] ? selectedIngredients)
+        public IActionResult CreateProduct(Product? product, IFormFile? photo, int[]? selectedIngredients)
         {
             if (ModelState.IsValid)
             {
@@ -91,7 +91,7 @@ namespace InFornoWebApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult EditProduct(int  ? id, Product ? product, IFormFile ?photo, int[] ? selectedIngredients)
+        public IActionResult EditProduct(int? id, Product? product, IFormFile? photo, int[]? selectedIngredients)
         {
             if (ModelState.IsValid)
             {
@@ -155,6 +155,30 @@ namespace InFornoWebApp.Controllers
             _context.Products.Remove(product);
             _context.SaveChanges();
             return RedirectToAction(nameof(ManageProducts));
+        }
+
+        public async Task<IActionResult> ManageOrders()
+        {
+            var orders = await _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .ToListAsync();
+            return View(orders);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateOrderStatus(int id)
+        {
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            order.IsCompleted = true;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(ManageOrders));
         }
     }
 }
