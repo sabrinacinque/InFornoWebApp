@@ -145,13 +145,13 @@ namespace InFornoWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var product = _context.Products
+            var product = await _context.Products
                 .Include(p => p.ProductIngredients)
-                .SingleOrDefault(p => p.Id == id);
+                .SingleOrDefaultAsync(p => p.Id == id);
 
             if (product == null)
             {
-                return NotFound();
+                return Json(new { success = false, message = "Prodotto non trovato." });
             }
 
             if (!string.IsNullOrEmpty(product.PhotoUrl))
@@ -165,7 +165,8 @@ namespace InFornoWebApp.Controllers
 
             _context.Products.Remove(product);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(ManageProducts));
+
+            return Json(new { success = true });
         }
 
         public async Task<IActionResult> ManageOrders()
