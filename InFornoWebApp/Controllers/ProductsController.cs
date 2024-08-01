@@ -201,6 +201,30 @@ public class ProductsController : Controller
         return View(orders);
     }
 
+    [Authorize(Roles = "User")]
+    public async Task<IActionResult> OrderDetails(int id)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        var userId = user?.Id;
+
+        if (userId == null)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        var order = await _context.Orders
+            .Include(o => o.OrderItems)
+            .ThenInclude(oi => oi.Product)
+            .SingleOrDefaultAsync(o => o.Id == id && o.UserId == userId);
+
+        if (order == null)
+        {
+            return NotFound();
+        }
+
+        return View(order);
+    }
+
     private Dictionary<int, int> GetCart()
     {
         var cart = HttpContext.Session.GetString("Cart");

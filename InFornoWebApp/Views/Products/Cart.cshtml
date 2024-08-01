@@ -44,7 +44,7 @@
     </tbody>
 </table>
 
-<p><strong>Totale Carrello: <span id="cart-total">@Model.Sum(p => (decimal)ViewBag.Quantities[p.Id] * p.Price)</span> €</strong></p>
+<p><strong>Totale Carrello: <span id="cart-total">@Model.Sum(p => (decimal)ViewBag.Quantities[p.Id] * p.Price)</span></strong></p>
 
 <a href="@Url.Action("Checkout", "Products")" class="btn btn-success">Concludi Ordine</a>
 
