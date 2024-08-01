@@ -21,5 +21,13 @@ namespace InFornoWebApp.Models
         public DateTime OrderDate { get; set; }
 
         public bool IsCompleted { get; set; }
+
+        public decimal TotalPrice
+        {
+            get
+            {
+                return OrderItems?.Sum(oi => oi.Product.Price * oi.Quantity) ?? 0;
+            }
+        }
     }
 }
