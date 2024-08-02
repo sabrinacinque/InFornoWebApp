@@ -37,7 +37,7 @@
         function getTotalOrders() {
             var date = $('#orderDate').val();
             $.ajax({
-                url: '@Url.Action("GetTotalOrders", "Admin")',
+                url: '@Url.Action("GetTotalOrders", "Admin")',//metodo nell'admin controller
                 type: 'POST',
                 data: { date: date },
                 success: function (data) {
@@ -52,7 +52,7 @@
         function getTotalRevenue() {
             var date = $('#revenueDate').val();
             $.ajax({
-                url: '@Url.Action("GetTotalRevenue", "Admin")',
+                url: '@Url.Action("GetTotalRevenue", "Admin")',//metodo nell'admin controller
                 type: 'POST',
                 data: { date: date },
                 success: function (data) {

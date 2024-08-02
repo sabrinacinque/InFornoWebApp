@@ -1,5 +1,6 @@
 html {
-  font-size: 14px;
+    font-size: 14px;
+    background-color: cadetblue;
 }
 
 @media (min-width: 768px) {
@@ -13,10 +14,11 @@ html {
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
   margin-bottom: 60px;
+  background-color : cadetblue;
 }
