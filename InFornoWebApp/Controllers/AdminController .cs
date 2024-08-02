@@ -192,5 +192,32 @@ namespace InFornoWebApp.Controllers
 
             return RedirectToAction(nameof(ManageOrders));
         }
+
+        //per i report giornalieri
+        public IActionResult Dashboard()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetTotalOrders(DateTime date)
+        {
+            var totalOrders = await _context.Orders
+                .Where(o => o.OrderDate.Date == date.Date && o.IsCompleted)
+                .CountAsync();
+
+            return Json(new { totalOrders });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetTotalRevenue(DateTime date)
+        {
+            var totalRevenue = await _context.Orders
+                .Where(o => o.OrderDate.Date == date.Date && o.IsCompleted)
+                .SelectMany(o => o.OrderItems)
+                .SumAsync(oi => oi.Product.Price * oi.Quantity);
+
+            return Json(new { totalRevenue });
+        }
     }
 }

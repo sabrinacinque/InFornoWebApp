@@ -1,0 +1,67 @@
+﻿@model DateTime?
+
+@{
+    ViewData["Title"] = "Dashboard Amministratore";
+}
+
+<h2>Dashboard Amministratore</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <h3>Numero Totale di Ordini Evasi</h3>
+        <form id="totalOrdersForm">
+            <div class="form-group">
+                <label for="orderDate">Data:</label>
+                <input type="date" class="form-control" id="orderDate" name="orderDate" required />
+            </div>
+            <button type="button" class="btn btn-primary" onclick="getTotalOrders()">Cerca</button>
+        </form>
+        <div id="totalOrdersResult"></div>
+    </div>
+    <div class="col-md-6">
+        <h3>Totale Incassato</h3>
+        <form id="totalRevenueForm">
+            <div class="form-group">
+                <label for="revenueDate">Data:</label>
+                <input type="date" class="form-control" id="revenueDate" name="revenueDate" required />
+            </div>
+            <button type="button" class="btn btn-primary" onclick="getTotalRevenue()">Cerca</button>
+        </form>
+        <div id="totalRevenueResult"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function getTotalOrders() {
+            var date = $('#orderDate').val();
+            $.ajax({
+                url: '@Url.Action("GetTotalOrders", "Admin")',
+                type: 'POST',
+                data: { date: date },
+                success: function (data) {
+                    $('#totalOrdersResult').html('Totale Ordini Evasi: ' + data.totalOrders);
+                },
+                error: function () {
+                    alert("Errore durante il recupero del numero totale di ordini.");
+                }
+            });
+        }
+
+        function getTotalRevenue() {
+            var date = $('#revenueDate').val();
+            $.ajax({
+                url: '@Url.Action("GetTotalRevenue", "Admin")',
+                type: 'POST',
+                data: { date: date },
+                success: function (data) {
+                    $('#totalRevenueResult').html('Totale Incassato: ' + data.totalRevenue.toFixed(2) + ' €');
+                },
+                error: function () {
+                    alert("Errore durante il recupero del totale incassato.");
+                }
+            });
+        }
+    </script>
+}
