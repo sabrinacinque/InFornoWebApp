@@ -9,5 +9,6 @@
         public Ingredient  Ingredient { get; set; }
     }
 }
+
  //questa classe ci serve per gestire la relazione "molti a molti" , perchè ogni pizza può avere più
  //ingredienti, e ogni ingrediente può essere associato a più pizze 
