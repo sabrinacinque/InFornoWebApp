@@ -16,8 +16,8 @@ namespace InFornoWebApp.Models
         public decimal  Price { get; set; }
 
        
-        public int ? DeliveryTime { get; set; } // tempo in minuti
+        public int  DeliveryTime { get; set; } // tempo in minuti
 
-        public List<ProductIngredient> ?  ProductIngredients { get; set; } = new List<ProductIngredient>();
+        public List<ProductIngredient>  ProductIngredients { get; set; } = new List<ProductIngredient>();
     }
 }
