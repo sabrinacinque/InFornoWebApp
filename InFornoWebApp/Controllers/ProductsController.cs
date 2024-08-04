@@ -10,8 +10,10 @@ using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 
+[Authorize(Roles = "User")]
 public class ProductsController : Controller
 {
+    
     private readonly ApplicationDbContext _context;
     private readonly UserManager<IdentityUser> _userManager;
 
@@ -21,7 +23,7 @@ public class ProductsController : Controller
         _userManager = userManager;
     }
 
-    [AllowAnonymous]
+
     public IActionResult Index()
     {
         var products = _context.Products
@@ -34,7 +36,6 @@ public class ProductsController : Controller
     }
 
     [HttpPost]
-    [Authorize(Roles = "User")]
     [ValidateAntiForgeryToken]
     public IActionResult AddToCart(int id)
     {
@@ -60,7 +61,6 @@ public class ProductsController : Controller
     }
 
     [HttpPost]
-    [Authorize(Roles = "User")]
     [ValidateAntiForgeryToken]
     public IActionResult UpdateQuantity(int id, int quantity)
     {
@@ -89,7 +89,6 @@ public class ProductsController : Controller
     }
 
     [HttpPost]
-    [Authorize(Roles = "User")]
     [ValidateAntiForgeryToken]
     public IActionResult DeleteFromCart(int id)
     {
@@ -103,7 +102,7 @@ public class ProductsController : Controller
         return Json(new { success = false, message = "Prodotto non trovato nel carrello." });
     }
 
-    [Authorize(Roles = "User")]
+    
     public IActionResult Cart()
     {
         var cart = GetCart();
@@ -118,7 +117,7 @@ public class ProductsController : Controller
         return View(products);
     }
 
-    [Authorize(Roles = "User")]
+    
     public IActionResult Checkout()
     {
         var cart = GetCart();
@@ -134,7 +133,6 @@ public class ProductsController : Controller
     }
 
     [HttpPost]
-    [Authorize(Roles = "User")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> PlaceOrder(string shippingAddress, string notes, string deliveryTime)
     {
@@ -175,13 +173,13 @@ public class ProductsController : Controller
         return RedirectToAction("OrderConfirmation");
     }
 
-    [Authorize(Roles = "User")]
+    
     public IActionResult OrderConfirmation()
     {
         return View();
     }
 
-    [Authorize(Roles = "User")]
+    
     public async Task<IActionResult> OrderHistory()
     {
         var user = await _userManager.GetUserAsync(User);
@@ -201,7 +199,7 @@ public class ProductsController : Controller
         return View(orders);
     }
 
-    [Authorize(Roles = "User")]
+    
     public async Task<IActionResult> OrderDetails(int id)
     {
         var user = await _userManager.GetUserAsync(User);
